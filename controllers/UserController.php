@@ -52,23 +52,12 @@ class UserController extends Controller
      */
     public function actionIndex()
     {
-        $bool = User::findOne(['id' => Yii::$app->user->identity->getId()])->access === 101;
         $searchModel = new UserSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-        /*$identity = Yii::$app->user->identity;
-        if($identity === null) {
-            throw new NotFoundHttpException();
-        }
-        $user = User::findOne(['id' => $identity->getId()]);
-        if($user !== null && $user->isAdmin()) {*/
             return $this->render('index', [
                 'searchModel' => $searchModel,
                 'dataProvider' => $dataProvider,
             ]);
-        /*}
-        else {
-            throw new NotFoundHttpException();
-        }*/
     }
 
     /**
