@@ -8,6 +8,7 @@ use app\models\UserSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\filters\AccessControl;
 
 /**
  * UserController implements the CRUD actions for User model.
@@ -21,9 +22,24 @@ class UserController extends Controller
     {
         return [
             'verbs' => [
-                'class' => VerbFilter::className(),
+                'class' => VerbFilter::class,
                 'actions' => [
                     'delete' => ['POST'],
+                ],
+            ],
+            'access' => [
+                'class' => AccessControl::class,
+                'only' => ['index', 'view', 'create', 'update', 'delete'],
+                'rules' => [
+                    [
+                        'actions' => ['index', 'view', 'create', 'update', 'delete'],
+                        'allow' => true,
+                        'roles' => ['@'],
+                        'matchCallback' => function($rule, $action) {
+                            $bool = User::findOne(['id' => Yii::$app->user->identity->getId()])->access === 101;
+                            return $bool;
+                        }
+                    ],
                 ],
             ],
         ];
@@ -32,25 +48,27 @@ class UserController extends Controller
     /**
      * Lists all User models.
      * @return mixed
+     * @throws NotFoundHttpException
      */
     public function actionIndex()
     {
+        $bool = User::findOne(['id' => Yii::$app->user->identity->getId()])->access === 101;
         $searchModel = new UserSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-        $identity = Yii::$app->user->identity;
+        /*$identity = Yii::$app->user->identity;
         if($identity === null) {
             throw new NotFoundHttpException();
         }
         $user = User::findOne(['id' => $identity->getId()]);
-        if($user !== null && $user->isAdmin()) {
+        if($user !== null && $user->isAdmin()) {*/
             return $this->render('index', [
                 'searchModel' => $searchModel,
                 'dataProvider' => $dataProvider,
             ]);
-        }
+        /*}
         else {
             throw new NotFoundHttpException();
-        }
+        }*/
     }
 
     /**
